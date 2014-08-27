@@ -1,0 +1,15 @@
+{
+    "name": "Laser1",
+    "movement": {
+        "xlo": 0,
+        "xhi": 8,
+        "ylo": 0,
+        "yhi": 12
+    },
+    "workspace": {
+        "xlo": -0.1,
+        "xhi": 9,
+        "ylo": 0.15,
+        "yhi": 11
+    }
+}

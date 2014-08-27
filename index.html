@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>2D CNC control application</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="jquery-1.10.2.js"></script>
+        <script src="jquery-ui.js"></script> 
+        <script src="jquery.mousewheel.js"></script>
+        <script src="shortcut.js"></script>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+        <script src="init2.js"></script>
+    </head>
+    <body>
+        <div id="main" class="mainsize widowwide">
+            <div id="toolpallet" class="floatingWindow">
+                <div class="windowbar" id="toolpalet-windowbar">
+                    Tool-pallet
+                </div>
+                <div class="pallet" id="tools">
+                    <table>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td  title="select"> 
+                                            <svg id="select-path-button" width="25px" height="25px">
+                                            <rect height="25" width="25" fill="white"/>
+                                            <path stroke-width="2"  stroke="black" fill="black" d="M 7 3 L 7 16 16 12 Z M 7 3 L 15 22"/>
+                                            </svg>
+                                        </td>
+                                        <td title="select material">
+                                        <td>
+                                    </tr>                                
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="pallet" id="options">
+                    <table>
+
+                        <tr>
+                            <td>Maybe I should have some options in here?</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="pallet" id="grid-settings">
+                    <table>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td> Major tick every</td>
+                                        <td><input id="grid-major" type="number" name="grid-major" min="0" max="100" value="1" step="0.1"/></td>
+                                        <td>inches</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td> Minor ticks in each major tick:</td>
+                                        <td><input id="grid-minor" type="number" name="grid-minor" min="1" max="100" value="10" step="1" /></td>
+                                        <td></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="checkbox" id="snap-to-grid"/>Snap to grid
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="pallet" id="add-material">                    
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="scroll-files" >
+                                    <table id="materials-table">                                                                     
+                                    </table>
+                                </div> 
+                            </td>
+                        </tr>
+                        <tr><td><hr/></td></tr>
+                        <tr> 
+                            
+                            <td title="new material"> 
+                                <svg id="new-material-button" width="25px" height="25px">
+                                <rect height="25" width="25" fill="white"/>
+                                <rect height="17" width="17" x="7" y="7" fill="none" stroke-width="2" stroke="black"/>
+                                <text x="13" y="20" font-size = "12">N</text>
+                                </svg>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="pallet" id="add-path">                    
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="scroll-files" >
+                                    <table id="paths-table">                                                                     
+                                    </table>
+                                </div> 
+                            </td>
+                        </tr>
+                        <tr><td><hr/></td></tr>
+                        <tr> 
+<!--                            <td title="upload and process file"> 
+                                <svg id="upload-button" width="25px" height="25px">
+                                <rect height="25" width="25" fill="white"/>
+                                <path stroke-width="2"  stroke="black" fill="black" d="M 12.5 5 L 5 12.5 11 12.5 11 22 14 22 14 12.5 20 12.5 Z"/>
+                                <line x1="0" y1="17" x2="21" y2="17" stroke="white" stroke-width="2 "/>
+                                </svg>
+                                
+                            </td>-->
+                            <td>
+                                <form action="upload"  method="post">
+                                    New file:<br/> 
+                                    <input type="file" name="uploadFile"><br/>
+                                    <input type="submit" value="Upload File">
+                                </form>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="pallet" id="material-properties">                    
+                    <table>
+                        <tr>
+                            <td>Name:</td>
+                            <td id="mat-name">N/A</td>
+                        </tr>
+                        <tr> 
+                            <td>X:</td>
+                            <td><input id="mat-x" type="number" name="grid-major" min="-1000" max="1000" value="1" step="1"/></td>
+                        </tr>
+                        <tr> 
+                            <td>Y:</td>
+                            <td><input id="mat-y" type="number" name="grid-major" min="-1000" max="1000" value="1" step="1"/></td>
+                        </tr>
+                        <tr> 
+                            <td>Scale:</td>
+                            <td><input id="mat-scale" type="number" name="grid-major" min="0" max="100" value="1" step="0.1"/></td>
+                        </tr>
+                        <tr> 
+                            <td>Rotation:</td>
+                            <td><input id="mat-rotate" type="number" name="grid-major" min="-360" max="360" value="1" step="1"/></td>
+                        </tr>  
+                        <tr> 
+                            <td>Power multiplier:</td>
+                            <td><input id="mat-rotate" type="number" name="grid-major" min="0" max="1" value="1" step="0.01"/></td>
+                        </tr>  
+                        <tr> 
+                            <td>Feedrate multiplier:</td>
+                            <td><input id="mat-feed" type="number" name="grid-major" min="0" max="100" value="1" step="1"/></td>
+                        </tr>                          
+                    </table>
+                </div>
+                <div class="pallet" id="path-properties">                    
+                    <table>
+                        <tr>
+                            <td>Name:</td>
+                            <td id="path-name">N/A</td>
+                        </tr>
+                        <tr> 
+                            <td>X:</td>
+                            <td><input id="path-x" type="number" name="grid-major" min="-1000" max="1000" value="1" step="1"/></td>
+                        </tr>
+                        <tr> 
+                            <td>Y:</td>
+                            <td><input id="path-y" type="number" name="grid-major" min="-1000" max="1000" value="1" step="1"/></td>
+                        </tr>
+                        <tr> 
+                            <td>Scale:</td>
+                            <td><input id="path-scale" type="number" name="grid-major" min="0" max="100" value="1" step="0.1"/></td>
+                        </tr>
+                        <tr> 
+                            <td>Rotation:</td>
+                            <td><input id="path-rotate" type="number" name="grid-major" min="-360" max="360" value="1" step="1"/></td>
+                        </tr>  
+                        <tr> 
+                            <td>Power:</td>
+                            <td><input id="path-rotate" type="number" name="grid-major" min="0" max="1" value="1" step="0.01"/></td>
+                        </tr>  
+                        <tr> 
+                            <td>Feedrate:</td>
+                            <td><input id="path-feed" type="number" name="grid-major" min="0" max="100" value="1" step="1"/></td>
+                        </tr>                          
+                    </table>
+                </div>
+                <div class="pallet" id="selection-properties">                    
+                    <table>
+                        <tr>
+                            <td>
+                                Number of objects:
+                            </td>
+                            <td id="no-of-objects">
+                                0
+                            </td>
+                        </tr>
+                        <tr> 
+                            <td>
+                                Number of Material objects:
+                            </td>
+                            <td id="no-of-mat-objects">
+                                0
+                            </td>
+                        </tr>
+                        <tr> 
+                            <td>
+                                Number of Path objects:
+                            </td>
+                            <td id="no-of-path-objects">
+                                0
+                            </td>
+                        </tr>
+                        <tr id="object-list">
+
+                        </tr>
+                    </table>
+                </div>
+                <div class="pallet" id="machine-data">      
+                    <table>
+                        <tr>
+                            <td>
+                                <button  id="go-button">Go!</button>
+                            </td>
+                            <td>
+                                <button id="stop-button">STOP!</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="mainsize" id="graphicscont" oncontextmenu="return false;">
+                <svg id="main-graphics">
+                <defs>
+                <pattern class="grid-small" id="grid-small-square" patternUnits="userSpaceOnUse" width="10" height="10">
+                    <!--                    <path d="M 0 0 L 0 10 10 10 10,0 Z" fill="none" stroke="blue" stroke-width="0.25"/>-->
+                    <rect class="grid-small" height="10" width="10" fill="none" stroke="blue" stroke-width="1"/>
+                </pattern>
+                <pattern class="grid-large" id="grid-large-square" patternUnits="userSpaceOnUse" width="100" height="100">
+                    <rect class="grid-large" height="100" width="100" fill="url(#grid-small-square)"/>
+                    <rect class="grid-large" height="100" width="100" fill="none" stroke="blue" stroke-width="2"/>
+                    <!--<path d="M 0 0 L 0 100 100 100 100,0 Z" fill="none" stroke="blue" stroke-width="1"/>-->
+                </pattern>
+                </defs>
+                
+                <g id="machine-movment-envelope">
+                <path class="zoom-dependant" id="select-rect" stroke-width="3"  stroke="black" fill="none" d="M 0 0 L 0 1 1 1 1 0 Z"/>
+                <rect class="zoom-dependant" id="machine-workspace-envelope-outline" height="400" width="400" fill="none" stroke="green" stroke-width="2"/>
+                <g id="selection">
+                </g>
+                <rect class="zoom-dependant" id="machine-movment-envelope-outline" height="400" width="400" fill="none" stroke="red" stroke-width="2"/>
+                <g id="machine-movment-envelope-origin" transform="translate(100,100)">
+                <circle class="origin" r="25" fill="none" cx="0" cy="0" stroke="black" stroke-width="1"/>
+                <line class="origin" x1="0" x2="0" y1="50" y2="-50" stroke="black"/>
+                <line class="origin" y1="0" y2="0" x1="50" x2="-50" stroke="black"/>                
+                </g>
+                <g id="machine-usible-envelope">
+                <rect id="machine-usible-envelope-outline" height="400" width="400" fill="none" stroke="green" stroke-width="2"/>
+                <g id="grid" >
+                <rect id="gridlayer" height="400" width="400" fill="url(#grid-large-square)"/>
+                </g>
+                <g id="materials">
+                </g>
+                <g id="paths">
+                </g>
+                </g>
+                </g>
+                </svg>
+            </div>         
+        </div>
+        <div id="headder" class="widowwide">
+            <table>
+                <tr>
+                    <td  title="zoom all"> 
+                        <svg id="zoom-all-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <circle cx="10" cy="10" r="8" fill="none" stroke="black"  stroke-width="2"/>
+                        <rect height="8" width="8" x="6" y="6"/>
+                        <line x1="15.5" y1="15.5" x2="21" y2="21" stroke="black" stroke-width="3 "/>
+                        </svg>
+                    </td>
+                    <td title="zoom 100%">
+                        <svg id="zoom-100-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <circle cx="10" cy="10" r="8" fill="none" stroke="black"  stroke-width="2"/>
+                        <text x="3" y="13" font-size = "8">100</text>
+                        <line x1="15.5" y1="15.5" x2="21" y2="21" stroke="black" stroke-width="3 "/>
+                        </svg>
+                    </td>
+                    <td  title="zoom in">
+                        <svg id="zoom-in-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <circle cx="10" cy="10" r="8" fill="none" stroke="black"  stroke-width="2"/>
+                        <text x="7" y="12" font-size = "8">+</text>
+                        <line x1="15.5" y1="15.5" x2="21" y2="21" stroke="black" stroke-width="3 "/>
+                        </svg>
+                    </td>
+                    <td  title="zoom out">
+                        <svg id="zoom-out-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <circle cx="10" cy="10" r="8" fill="none" stroke="black"  stroke-width="2"/>
+                        <text x="7" y="12" font-size = "8">-</text>
+                        <line x1="15.5" y1="15.5" x2="21" y2="21" stroke="black" stroke-width="3 "/>
+                        </svg>
+                    </td>
+                    <td>|</td>
+                    <td  title="undo">
+                        <svg id="undo-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <circle cx="12.5" cy="12.5" r="7" fill="none" stroke-width="2" stroke="black"/>
+                        <rect x="0" y="12.5" width="12.5" height="12.5" fill="white"/>
+                        <path stroke-width="1"  stroke="black" fill="black" d="M 2 12.5 L 6 16.5 10 12.5 Z"/>
+                        </svg>
+                    </td>
+                    <td  title="redo">
+                        <svg id="redo-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <circle cx="12.5" cy="12.5" r="7" fill="none" stroke-width="2" stroke="black"/>
+                        <rect x="12.5" y="12.5" width="12.5" height="12.5" fill="white"/>
+                        <path stroke-width="1"  stroke="black" fill="black" d="M 15 12.5 L 19 16.5 23 12.5 Z"/>                       
+                        </svg>
+                    </td>
+                    <td>|</td>
+                    <td  title="tools">
+                        <svg id="tools-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <path stroke-width="1"  stroke="black" fill="black" d="M 5 4 L 5 20 17 20 Z"/>
+                        <path stroke-width="1"  stroke="white" fill="white" d="M 8 12 L 8 17 11 17 Z"/>                        
+                        </svg>
+                    </td> 
+                    <td title="options">
+                        <svg id="options-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <circle cx="12.5" cy="12.5" r="8"/>
+                        <line x1="12.5" y1="2" x2="12.5" y2="23" stroke="black" stroke-width="3 "/>
+                        <line x1="2" y1="12.5" x2="23" y2="12.5" stroke="black" stroke-width="3 "/>
+                        <line x1="5" y1="5" x2="20" y2="20" stroke="black" stroke-width="3 "/>
+                        <line x1="20" y1="5" x2="5" y2="20" stroke="black" stroke-width="3 "/>
+                        <circle cx="12.5" cy="12.5" r="2" fill="white"/>
+                        </svg>
+                    </td>                   
+                    <td  title="grid settings">
+                        <svg id="grid-settings-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <rect x="2.5" y="2.5" height="20" width="20" fill="none" stroke="black" stroke-width="2" />
+                        <rect x="12.5" y="12.5" height="10" width="10" fill="none" stroke="black" stroke-width="1.5" />
+                        <rect x="2.5" y="2.5" height="10" width="10" fill="none" stroke="black" stroke-width="1.5" />
+                        <rect x="2.5" y="7.5" height="10" width="20" fill="none" stroke="black" stroke-width="1" />
+                        <rect x="7.5" y="2.5" height="20" width="10" fill="none" stroke="black" stroke-width="1" />
+                        </svg>
+                    </td> 
+                    <td  title="toggle grid"> 
+                        <svg id="toggle-grid-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <rect x="2.5" y="2.5" height="20" width="20" fill="none" stroke="black" stroke-width="2" />
+                        <rect x="12.5" y="12.5" height="10" width="10" fill="none" stroke="black" stroke-width="1.5" />
+                        <rect x="2.5" y="2.5" height="10" width="10" fill="none" stroke="black" stroke-width="1.5" />
+                        <rect x="2.5" y="7.5" height="10" width="20" fill="none" stroke="black" stroke-width="1" />
+                        <rect x="7.5" y="2.5" height="20" width="10" fill="none" stroke="black" stroke-width="1" />
+                        <path stroke-width="1"  stroke="black" fill="white" d="M 22.5 2.5 L 22.5 22.5 2.5 22.5 Z"/>
+                        </svg>
+                    </td>
+                    <td  title="add path"> 
+                        <svg id="add-path-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <path stroke-width="2"  stroke="black" fill="none" d="M 3 3 L 7 16 22 22 "/>
+                        <text x="8" y="10"  font-weight="bold" font-size="12">+</text>
+                        </svg>
+                    </td>
+                    <td  title="add material"> 
+                        <svg id="add-material-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <rect height="17" width="17" x="7" y="7" fill="none" stroke-width="2" stroke="black"/>
+                        <text x="2" y="8" font-size = "12">+</text>
+                        </svg>
+                    </td>          
+                    <td>|</td>
+                    <td  title="Machine controls">
+                        <svg id="machine-button" width="25px" height="25px">
+                        <rect height="25" width="25" fill="white"/>
+                        <rect x="1" y="1" width="23" height="23" fill="none" stroke-width="2" stroke="black" />
+                        <circle cx="14" cy="17" r="2" fill="none" stroke-width="1" stroke="black"/>
+                        <line x1="14" y1="16" x2="14" y2="13" stroke="black" stroke-width="1"/>
+                        <line x1="0" y1="13" x2="25" y2="13" stroke="black" stroke-width="1"/>
+                        </svg>
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+        <div id="footer" class="widowwide">
+        </div>
+        <div id="prototypes" style="display:none" >
+            <table id="table-box-prototype">
+                <tbody>
+                    <tr>
+                        <td>
+                            <svg width="50" height="50">
+                            <rect class="table-box-image" height="50" width="50" fill="white"></rect>
+                            </svg>
+                        </td>
+                        <td>
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>width = <span class="table-box-width"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>height = <span class="table-box-height"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>power = <span class="table-box-power"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>speed = <span class="table-box-speed"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>                        
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="table-box-name">test2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

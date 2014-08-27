@@ -1,0 +1,17 @@
+{
+    "testshape":
+            {
+                "height": 6.63,
+                "width": 6.54
+            },
+    "test2":
+            {
+                "height": 1.335,
+                "width": 2.4425
+            },
+    "Woohoo":
+            {
+                "height": 282,
+                "width": 185
+            }
+}

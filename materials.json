@@ -1,0 +1,16 @@
+{
+   "laserply": {
+        "width": 3,
+        "height": 4,
+        "speed": 10,
+        "power": 3,
+        "colour": "khaki"
+    },
+    "ploycarb":{        
+        "width": 2,
+        "height": 5,
+        "speed": 5, 
+        "power": 2,
+        "colour": "#CEECF5"
+    }
+}
